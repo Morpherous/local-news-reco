@@ -1,4 +1,4 @@
-package com.localnews.reco.api.req;
+package com.localnews.reco.model;
 
 public class EventReportRequest {
     private String userId;
