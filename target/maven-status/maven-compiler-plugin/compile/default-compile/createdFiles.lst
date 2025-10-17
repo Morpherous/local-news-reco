@@ -1,0 +1,7 @@
+com/localnews/reco/service/RecoService.class
+com/localnews/reco/controller/RecoController.class
+com/localnews/reco/model/NewsArticle.class
+com/localnews/reco/repository/RecoStore.class
+com/localnews/reco/repository/InMemoryRecoStore.class
+com/localnews/reco/api/req/EventReportRequest.class
+com/localnews/reco/Application.class

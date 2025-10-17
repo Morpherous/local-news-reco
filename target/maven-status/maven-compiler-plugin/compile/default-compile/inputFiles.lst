@@ -1,0 +1,7 @@
+/Users/daiweinan/IdeaProjects/local-news-reco/src/main/java/com/localnews/reco/api/req/EventReportRequest.java
+/Users/daiweinan/IdeaProjects/local-news-reco/src/main/java/com/localnews/reco/repository/InMemoryRecoStore.java
+/Users/daiweinan/IdeaProjects/local-news-reco/src/main/java/com/localnews/reco/Application.java
+/Users/daiweinan/IdeaProjects/local-news-reco/src/main/java/com/localnews/reco/controller/RecoController.java
+/Users/daiweinan/IdeaProjects/local-news-reco/src/main/java/com/localnews/reco/repository/RecoStore.java
+/Users/daiweinan/IdeaProjects/local-news-reco/src/main/java/com/localnews/reco/model/NewsArticle.java
+/Users/daiweinan/IdeaProjects/local-news-reco/src/main/java/com/localnews/reco/service/RecoService.java
