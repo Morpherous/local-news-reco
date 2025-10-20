@@ -3,11 +3,6 @@
 ## Install Java and Maven
 Install Java 11 and Maven 3.8
 
-## Login cloud machine
-```bash
-ssh root@139.9.118.62
-jrt!fW4shY88FBv
-```
 ## Package the JAR
 ```bash
 mvn clean package -DskipTests
