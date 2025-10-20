@@ -24,11 +24,13 @@ public class RecoController {
 
     @GetMapping("/articles")
     public List<NewsArticle> articles() {
+        System.out.println("get all the articles");
         return svc.articles();
     }
 
     @GetMapping("/users/{userId}/recommendations")
     public List<NewsArticle> recs(@PathVariable String userId, @RequestParam(defaultValue = "10") int limit) {
+        System.out.println("get limit results");
         return svc.recommend(userId, limit);
     }
 

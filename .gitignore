@@ -1,4 +1,4 @@
-/.idea/
-/src/test/
-/target/
+/.idea/*
+/src/test/*
+/target/*
 /local-news-reco.iml
