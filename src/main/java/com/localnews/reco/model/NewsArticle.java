@@ -11,7 +11,7 @@ public class NewsArticle {
     private Long publishedAt;
     private String source;
     private List<String> tags;
-
+aaa
     public NewsArticle(String id, String title, String summary, String url,
                        String imageUrl, Long publishedAt, String source, List<String> tags) {
         this.id = id;
