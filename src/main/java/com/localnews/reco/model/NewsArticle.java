@@ -14,14 +14,15 @@ public class NewsArticle {
 
     public NewsArticle(String id, String title, String summary, String url,
                        String imageUrl, Long publishedAt, String source, List<String> tags) {
-        this.id = id;
-        this.title = title;
-        this.summary = summary;
-        this.url = url;
-        this.imageUrl = imageUrl;
+        this.id = "id";
+        this.title = "title";
+        this.summary = "summary";
+        this.url = "url";
+        this.imageUrl = "imageUrl";
         this.publishedAt = publishedAt;
-        this.source = source;
-        this.tags = tags;
+        this.source = "source";
+        this.tags = List.of("stuff", "stuff");
+
     }
 
     public String getId() {
