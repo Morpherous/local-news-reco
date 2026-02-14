@@ -1,2 +1,11 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
+
+news:
+  refresh-minutes: ${NEWS_REFRESH_MINUTES:20}
+  max-articles: ${NEWS_MAX_ARTICLES:120}
+  request-timeout-seconds: ${NEWS_REQUEST_TIMEOUT_SECONDS:12}
+  feeds:
+    - https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en
+    - https://rss.nytimes.com/services/xml/rss/nyt/US.xml
+    - https://feeds.npr.org/1001/rss.xml
