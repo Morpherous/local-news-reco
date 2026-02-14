@@ -4,30 +4,48 @@ import NewsLayout from "../layouts/NewsLayout.astro";
 
 <NewsLayout
   page="home"
-  title="Top Stories For You"
-  lead="A personalized stream blended from your recent activity and live news sources."
+  title="DailyPulse"
+  lead="Realtime recommendations powered by your behavior and live news feeds."
 >
   <div class="home-page">
-    <section class="home-top">
-      <article class="panel headline-panel">
-        <div id="home-headline" class="headline-loading">Loading headline...</div>
-      </article>
-      <aside class="panel trend-panel">
-        <div class="panel-title">
-          <h2>Trending Now</h2>
-          <button id="home-refresh" type="button">Refresh</button>
-        </div>
-        <ul id="home-trending" class="trend-list"></ul>
-      </aside>
-    </section>
+    <div class="tt-grid">
+      <section class="tt-main">
+        <article class="panel brief-panel">
+          <div class="brief-head">
+            <h2>Today Brief</h2>
+            <p id="home-brief-date"></p>
+          </div>
+          <ul id="home-brief-list" class="brief-list"></ul>
+        </article>
 
-    <section class="panel">
-      <div class="panel-title">
-        <h2>Recommended Feed</h2>
-        <span class="muted">Keep reading what matters to you.</span>
-      </div>
-      <div id="home-feed" class="feed-grid"></div>
-    </section>
+        <article class="panel lead-panel">
+          <div id="home-headline" class="headline-loading">Loading top story...</div>
+        </article>
+
+        <section class="panel stream-panel">
+          <div class="panel-title">
+            <h2>News Stream</h2>
+          </div>
+          <div id="home-feed" class="stream-list"></div>
+        </section>
+      </section>
+
+      <aside class="tt-side">
+        <section class="panel rank-panel">
+          <div class="panel-title">
+            <h2>Live Hot Ranking</h2>
+            <button id="home-refresh" type="button">Refresh</button>
+          </div>
+          <ol id="home-trending" class="rank-list"></ol>
+        </section>
+
+        <section class="panel user-panel">
+          <h3>Sign in to personalize deeper</h3>
+          <p>Track your favorite topics and receive smarter recommendations all day.</p>
+          <a href="/insights" class="panel-cta">Open My Feed</a>
+        </section>
+      </aside>
+    </div>
   </div>
 
   <template id="home-feed-card-template">
@@ -39,7 +57,7 @@ import NewsLayout from "../layouts/NewsLayout.astro";
         <p class="meta"></p>
         <h3 class="title"></h3>
         <p class="summary"></p>
-        <div class="tag-list tags"></div>
+        <div class="tag-list tags" hidden></div>
         <div class="actions">
           <a class="read-btn">Read Full Story</a>
           <button class="icon-action like-btn" data-action="like" type="button" aria-label="Like" title="Like">
@@ -65,36 +83,74 @@ import NewsLayout from "../layouts/NewsLayout.astro";
 </NewsLayout>
 
 <style is:global>
-  .home-page .home-top {
+  .home-page .tt-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.8fr) minmax(21rem, 1fr);
-    gap: 0.9rem;
-    align-items: stretch;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 1rem;
   }
 
-  .home-page .headline-panel {
-    height: clamp(25rem, 60vh, 33rem);
-    padding: 0.58rem;
+  .home-page .tt-main {
     display: grid;
+    gap: 1rem;
+  }
+
+  .home-page .brief-panel {
+    background: #fcfcfe;
+  }
+
+  .home-page .brief-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .home-page .brief-head h2 {
+    margin: 0;
+    font-family: "Source Serif 4", serif;
+    font-size: 1.28rem;
+    color: #111827;
+  }
+
+  .home-page .brief-head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .home-page .brief-list {
+    margin: 0;
+    padding: 0 0 0 1.15rem;
+    display: grid;
+    gap: 0.46rem;
+  }
+
+  .home-page .brief-list li {
+    color: #253041;
+    line-height: 1.45;
+    font-size: 0.96rem;
+  }
+
+  .home-page .lead-panel {
+    padding: 0.55rem;
   }
 
   .home-page .headline {
     position: relative;
-    border-radius: 14px;
+    border-radius: 12px;
     overflow: hidden;
-    min-height: 0;
-    height: 100%;
+    min-height: 25rem;
     display: grid;
     align-content: end;
-    color: #fff;
     text-decoration: none;
+    color: #fff;
   }
 
   .home-page .headline::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0, 24, 44, 0.86), rgba(0, 24, 44, 0.18));
+    background: linear-gradient(to top, rgba(5, 12, 30, 0.86), rgba(5, 12, 30, 0.2));
     z-index: 1;
   }
 
@@ -109,130 +165,88 @@ import NewsLayout from "../layouts/NewsLayout.astro";
   .home-page .headline-content {
     position: relative;
     z-index: 2;
-    padding: 1rem;
     display: grid;
-    gap: 0.5rem;
+    gap: 0.45rem;
+    padding: 1.1rem;
   }
 
   .home-page .headline-content p {
     margin: 0;
-    font-size: 0.78rem;
-    opacity: 0.88;
+    font-size: 0.86rem;
+    opacity: 0.9;
   }
 
   .home-page .headline-content h2 {
     margin: 0;
     font-family: "Source Serif 4", serif;
-    font-size: clamp(1.5rem, 3vw, 2.2rem);
-    line-height: 1.12;
+    font-size: clamp(1.85rem, 3.1vw, 2.65rem);
+    line-height: 1.07;
+    max-width: 22ch;
   }
 
   .home-page .headline-content span {
-    font-size: 0.92rem;
-    line-height: 1.5;
-    opacity: 0.95;
-    max-width: 52ch;
+    font-size: 1.02rem;
+    line-height: 1.46;
+    max-width: 66ch;
+    opacity: 0.96;
   }
 
   .home-page .headline-loading {
+    min-height: 25rem;
     display: grid;
     place-items: center;
-    color: var(--muted);
     border: 1px dashed var(--line);
-    border-radius: 14px;
-    min-height: 0;
-    height: 100%;
+    border-radius: 12px;
+    color: var(--muted);
+  }
+
+  .home-page .stream-panel {
+    background: #fff;
   }
 
   .home-page .panel-title {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     gap: 0.6rem;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.7rem;
   }
 
   .home-page .panel-title h2 {
     margin: 0;
     font-family: "Source Serif 4", serif;
-    font-size: 1.3rem;
-  }
-
-  .home-page .panel-title h3 {
-    margin: 0;
-    font-family: "Source Serif 4", serif;
+    font-size: 1.42rem;
   }
 
   .home-page .panel-title button {
-    border: 1px solid #d6ddeb;
+    border: 1px solid #d3dbe7;
     background: #fff;
-    color: var(--ink);
+    color: #344054;
     border-radius: 999px;
-    padding: 0.35rem 0.62rem;
-    font-size: 0.76rem;
+    padding: 0.34rem 0.62rem;
+    font-size: 0.75rem;
     cursor: pointer;
   }
 
-  .home-page .trend-panel {
-    height: clamp(25rem, 60vh, 33rem);
+  .home-page .stream-list {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
-    gap: 0;
-  }
-
-  .home-page .trend-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 0.45rem;
-    min-height: 0;
-    overflow: auto;
-    padding-right: 0.2rem;
-  }
-
-  .home-page .trend-list li a {
-    text-decoration: none;
-    color: inherit;
-    border: 1px solid #dde5f0;
-    background: var(--card-2);
-    border-radius: 10px;
-    padding: 0.55rem;
-    display: grid;
-    gap: 0.22rem;
-  }
-
-  .home-page .trend-list p {
-    margin: 0;
-    font-size: 0.76rem;
-    color: var(--muted);
-  }
-
-  .home-page .trend-list strong {
-    margin: 0;
-    font-family: "Source Serif 4", serif;
-    font-size: 1rem;
-    line-height: 1.25;
-  }
-
-  .home-page .feed-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.8rem;
+    gap: 0.72rem;
   }
 
   .home-page .feed-card {
-    border: 1px solid #dde5f0;
-    border-radius: 14px;
-    overflow: hidden;
-    background: var(--card-2);
     display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 0.8rem;
+    border: 1px solid #e4e8ef;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
   }
 
   .home-page .cover-link {
     display: block;
-    height: 12rem;
-    background: linear-gradient(135deg, #bad7ea, #f6c7b3);
+    min-height: 150px;
+    background: linear-gradient(135deg, #bedaf1, #f9d0be);
   }
 
   .home-page .cover {
@@ -243,46 +257,47 @@ import NewsLayout from "../layouts/NewsLayout.astro";
   }
 
   .home-page .content {
-    padding: 0.7rem;
+    padding: 0.62rem 0.72rem 0.62rem 0;
     display: grid;
-    gap: 0.45rem;
+    gap: 0.38rem;
   }
 
   .home-page .content .meta {
     margin: 0;
-    font-size: 0.75rem;
-    color: var(--muted);
+    font-size: 0.76rem;
+    color: #7c8598;
   }
 
   .home-page .content .title {
     margin: 0;
     font-family: "Source Serif 4", serif;
-    font-size: 1.2rem;
-    line-height: 1.22;
+    font-size: 1.34rem;
+    line-height: 1.2;
   }
 
   .home-page .content .summary {
     margin: 0;
-    color: #334e68;
-    line-height: 1.48;
-    font-size: 0.92rem;
+    color: #3a4a66;
+    line-height: 1.5;
+    font-size: 0.94rem;
   }
 
   .home-page .actions {
-    margin-top: 0.22rem;
+    margin-top: 0.08rem;
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 0.35rem;
+    gap: 0.34rem;
   }
 
-  .home-page .actions a {
-    border: 1px solid #d8e1ef;
+  .home-page .actions .read-btn {
+    border: 1px solid #d6deea;
     background: #fff;
     border-radius: 999px;
-    padding: 0.32rem 0.64rem;
+    padding: 0.3rem 0.62rem;
     font-size: 0.74rem;
     text-decoration: none;
-    color: var(--ink);
+    color: #22314c;
     cursor: pointer;
   }
 
@@ -326,6 +341,90 @@ import NewsLayout from "../layouts/NewsLayout.astro";
     animation: pulse-fail 300ms ease;
   }
 
+  .home-page .tt-side {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .home-page .rank-list {
+    counter-reset: rank;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.1rem;
+  }
+
+  .home-page .rank-list li {
+    counter-increment: rank;
+    border-bottom: 1px solid #edf1f6;
+    padding: 0.55rem 0;
+  }
+
+  .home-page .rank-list li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .home-page .rank-list li a {
+    text-decoration: none;
+    color: inherit;
+    display: grid;
+    gap: 0.16rem;
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  .home-page .rank-list li a::before {
+    content: counter(rank);
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-weight: 800;
+    color: #ff4d4f;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .home-page .rank-list li p {
+    margin: 0;
+    font-size: 0.74rem;
+    color: #8a93a5;
+  }
+
+  .home-page .rank-list li strong {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.34;
+    color: #212b3b;
+  }
+
+  .home-page .user-panel h3 {
+    margin: 0;
+    font-family: "Source Serif 4", serif;
+    font-size: 1.22rem;
+  }
+
+  .home-page .user-panel p {
+    margin: 0.48rem 0 0;
+    color: #637089;
+    line-height: 1.5;
+    font-size: 0.9rem;
+  }
+
+  .home-page .panel-cta {
+    margin-top: 0.75rem;
+    display: inline-flex;
+    text-decoration: none;
+    color: #fff;
+    background: var(--brand);
+    border-radius: 7px;
+    padding: 0.48rem 0.76rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
   @keyframes pulse-fail {
     0% {
       transform: scale(1);
@@ -338,24 +437,36 @@ import NewsLayout from "../layouts/NewsLayout.astro";
     }
   }
 
-  @media (max-width: 980px) {
-    .home-page .home-top,
-    .home-page .feed-grid {
+  @media (max-width: 1080px) {
+    .home-page .tt-grid {
       grid-template-columns: 1fr;
     }
 
-    .home-page .headline-panel,
-    .home-page .trend-panel {
-      height: auto;
+    .home-page .tt-side {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 820px) {
+    .home-page .feed-card {
+      grid-template-columns: 1fr;
     }
 
-    .home-page .headline {
-      min-height: 20rem;
+    .home-page .cover-link {
+      min-height: 11rem;
     }
 
-    .home-page .trend-list {
-      overflow: visible;
-      padding-right: 0;
+    .home-page .content {
+      padding: 0.62rem;
+    }
+
+    .home-page .headline,
+    .home-page .headline-loading {
+      min-height: 19rem;
+    }
+
+    .home-page .tt-side {
+      grid-template-columns: 1fr;
     }
   }
 </style>

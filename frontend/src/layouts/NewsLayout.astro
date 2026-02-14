@@ -19,6 +19,13 @@ const channelItems = [
   { key: "culture", label: "Culture" },
   { key: "lifestyle", label: "Lifestyle" }
 ];
+
+const utilityLinks = [
+  { label: "Download App", href: "#" },
+  { label: "About", href: "#" },
+  { label: "Feedback", href: "#" },
+  { label: "Support", href: "#" }
+];
 ---
 
 <!doctype html>
@@ -30,56 +37,66 @@ const channelItems = [
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
       rel="stylesheet"
     />
   </head>
   <body data-page={page}>
-    <header class="topline">
-      <div class="inner topline-inner">
-        <div class="topline-left">
-          <strong>LIVE</strong>
-          <span>Personalized coverage powered by real-time feeds.</span>
-        </div>
-        <span class="topline-right">Built for Everyday Readers</span>
-      </div>
-    </header>
-
-    <header class="masthead">
-      <div class="inner masthead-inner">
-        <a href="/" class="brand">
-          <b>DailyPulse</b>
-          <small>Your Personal Newswire</small>
-        </a>
-        <div class="masthead-actions">
-          <nav aria-label="Primary">
+    <header class="hero-header">
+      <div class="utility-row">
+        <div class="inner utility-inner">
+          <div class="utility-links">
             {
-              navItems.map((item) => (
-                <a href={item.href} class={item.key === page ? "active" : ""}>{item.label}</a>
+              utilityLinks.map((item) => (
+                <a href={item.href}>{item.label}</a>
               ))
             }
-          </nav>
+          </div>
+          <div class="utility-right">
+            <span class="utility-weather" data-weather hidden></span>
+            <nav class="utility-nav" aria-label="Primary">
+              {
+                navItems.map((item) => (
+                  <a href={item.href} class={item.key === page ? "active" : ""}>{item.label}</a>
+                ))
+              }
+            </nav>
+            <a class="utility-login" href="/insights">Log In</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-core">
+        <div class="inner hero-inner">
+          <a href="/" class="hero-brand" aria-label="DailyPulse Home">
+            <strong>DailyPulse</strong>
+            <small>Realtime Personalized News</small>
+          </a>
+
           <form class="global-search" role="search" autocomplete="off">
-            <button class="search-toggle" type="button" aria-label="Search stories">
+            <input
+              class="search-input"
+              type="search"
+              name="q"
+              placeholder="Search the latest stories..."
+              spellcheck="false"
+              autocomplete="off"
+            />
+            <button class="search-toggle" type="submit" aria-label="Search stories">
               <svg viewBox="0 0 20 20" aria-hidden="true">
                 <path
                   d="M13.7 12.3h-.74l-.26-.25a5.97 5.97 0 1 0-.64.64l.25.26v.74L17 18.3 18.3 17l-4.6-4.7zM8.5 13A4.5 4.5 0 1 1 13 8.5 4.5 4.5 0 0 1 8.5 13z"
                 ></path>
               </svg>
             </button>
-            <input
-              class="search-input"
-              type="search"
-              name="q"
-              placeholder="Search stories..."
-              spellcheck="false"
-              autocomplete="off"
-            />
           </form>
         </div>
       </div>
-      <div class="channel-row">
-        <div class="inner channel-list">
+    </header>
+
+    <div class="channel-row">
+      <div class="inner channel-inner">
+        <div class="channel-list">
           {
             channelItems.map((item) => (
               <a class="channel-link" data-topic={item.key} href={`/?topic=${item.key}`}>
@@ -88,12 +105,17 @@ const channelItems = [
             ))
           }
         </div>
+        <div class="channel-cta">
+          <span>Sign in for deeper recommendations</span>
+          <a href="/insights">Open My Feed</a>
+        </div>
       </div>
-    </header>
+    </div>
 
     <main class="inner page-shell">
       <slot />
     </main>
+
     <script is:inline>
       (() => {
         const links = [...document.querySelectorAll(".channel-link[data-topic]")];
@@ -116,41 +138,40 @@ const channelItems = [
         highlightChannel();
         window.addEventListener("popstate", highlightChannel);
 
+        const weatherEl = document.querySelector("[data-weather]");
+        if (weatherEl) {
+          hydrateWeather(weatherEl);
+        }
+
         const search = document.querySelector(".global-search");
         if (!search) {
           return;
         }
-        const toggle = search.querySelector(".search-toggle");
         const input = search.querySelector(".search-input");
-        if (!toggle || !input) {
+        if (!input) {
           return;
         }
 
-        const setOpen = (open) => {
-          search.classList.toggle("open", open);
-        };
-
         const syncSearchFromUrl = () => {
-          const currentQuery = (new URLSearchParams(window.location.search).get("q") || "").trim();
-          input.value = currentQuery;
-          setOpen(Boolean(currentQuery));
+          const query = (new URLSearchParams(window.location.search).get("q") || "").trim();
+          input.value = query;
         };
 
         syncSearchFromUrl();
         window.addEventListener("popstate", syncSearchFromUrl);
 
-        const applySearch = () => {
+        search.addEventListener("submit", (event) => {
+          event.preventDefault();
           const query = input.value.trim();
           const currentParams = new URLSearchParams(window.location.search);
           const nextParams = new URLSearchParams();
-          const currentTopic = (currentParams.get("topic") || "").trim();
-          if (currentTopic) {
-            nextParams.set("topic", currentTopic);
+          const topic = (currentParams.get("topic") || "").trim();
+          if (topic) {
+            nextParams.set("topic", topic);
           }
           if (query) {
             nextParams.set("q", query);
           }
-
           const next = `/` + (nextParams.toString() ? `?${nextParams.toString()}` : "");
           const current = `${window.location.pathname}${window.location.search}`;
           if (current === next) {
@@ -158,37 +179,86 @@ const channelItems = [
             return;
           }
           window.location.assign(next);
-        };
-
-        toggle.addEventListener("click", () => {
-          if (!search.classList.contains("open")) {
-            setOpen(true);
-            input.focus();
-            input.select();
-            return;
-          }
-          applySearch();
         });
 
-        search.addEventListener("submit", (event) => {
-          event.preventDefault();
-          applySearch();
-        });
-
-        input.addEventListener("keydown", (event) => {
-          if (event.key === "Escape") {
-            if (!input.value.trim()) {
-              setOpen(false);
+        async function hydrateWeather(el) {
+          try {
+            const geo = await fetchJsonWithTimeout("https://ipapi.co/json/");
+            const latitude = Number(geo && geo.latitude);
+            const longitude = Number(geo && geo.longitude);
+            if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+              throw new Error("Missing coordinates");
             }
-            input.blur();
-          }
-        });
 
-        input.addEventListener("blur", () => {
-          if (!input.value.trim()) {
-            setOpen(false);
+            const city = normalizeText((geo && geo.city) || (geo && geo.region) || "Local");
+            const weather = await fetchJsonWithTimeout(
+              `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&current=temperature_2m,weather_code&temperature_unit=celsius&timezone=auto`
+            );
+            const current = weather && weather.current ? weather.current : {};
+            const tempRaw = Number(current.temperature_2m);
+            const weatherCode = Number(current.weather_code);
+            const condition = weatherCodeToLabel(weatherCode);
+            const temp = Number.isFinite(tempRaw) ? `${Math.round(tempRaw)}C` : "";
+            const pieces = [city, condition, temp].filter(Boolean);
+
+            if (!pieces.length) {
+              throw new Error("No weather payload");
+            }
+            el.textContent = pieces.join(" | ");
+            el.hidden = false;
+          } catch (_err) {
+            el.remove();
           }
-        });
+        }
+
+        async function fetchJsonWithTimeout(url) {
+          const controller = new AbortController();
+          const timer = window.setTimeout(() => controller.abort(), 3500);
+          try {
+            const response = await fetch(url, { signal: controller.signal });
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+          } finally {
+            window.clearTimeout(timer);
+          }
+        }
+
+        function normalizeText(value) {
+          return value == null ? "" : String(value).trim();
+        }
+
+        function weatherCodeToLabel(code) {
+          if (!Number.isFinite(code)) {
+            return "";
+          }
+          if (code === 0) {
+            return "Clear";
+          }
+          if (code === 1 || code === 2) {
+            return "Partly Cloudy";
+          }
+          if (code === 3) {
+            return "Cloudy";
+          }
+          if (code === 45 || code === 48) {
+            return "Fog";
+          }
+          if (code >= 51 && code <= 67) {
+            return "Rain";
+          }
+          if (code >= 71 && code <= 77) {
+            return "Snow";
+          }
+          if (code >= 80 && code <= 82) {
+            return "Showers";
+          }
+          if (code >= 95 && code <= 99) {
+            return "Storm";
+          }
+          return "Weather";
+        }
       })();
     </script>
   </body>
@@ -196,19 +266,18 @@ const channelItems = [
 
 <style is:global>
   :root {
-    --bg: #f3f4f6;
+    --bg: #f5f6f8;
     --card: #ffffff;
-    --card-2: #f8fafc;
-    --line: #e4e7ed;
-    --ink: #1f2329;
-    --muted: #6b7280;
-    --brand: #f04142;
-    --brand-deep: #d9363e;
-    --accent: #f04142;
-    --tag-bg: #fff1f1;
-    --tag-line: #ffd7d9;
-    --tag-ink: #ad2a36;
-    --shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+    --line: #e8eaf0;
+    --ink: #1f2430;
+    --muted: #667085;
+    --brand: #ff4d4f;
+    --brand-deep: #ef3f43;
+    --accent: #ff4d4f;
+    --tag-bg: #fff2f2;
+    --tag-line: #ffd7d7;
+    --tag-ink: #cc3b43;
+    --shadow: 0 8px 22px rgba(16, 24, 40, 0.06);
   }
 
   * {
@@ -224,209 +293,206 @@ const channelItems = [
   }
 
   .inner {
-    width: min(1160px, 100%);
+    width: min(1240px, 100%);
     margin: 0 auto;
     padding: 0 1rem;
   }
 
-  .topline {
-    background: #151922;
+  .hero-header {
+    position: relative;
     color: #fff;
+    background:
+      radial-gradient(1200px 420px at 50% 100%, rgba(66, 139, 255, 0.52) 0%, rgba(9, 17, 44, 0.04) 58%),
+      radial-gradient(580px 260px at 50% 94%, rgba(64, 184, 255, 0.3), rgba(26, 35, 67, 0.05) 68%),
+      linear-gradient(165deg, #070e29 0%, #0d1f4b 48%, #0f1a3a 100%);
+    overflow: hidden;
+  }
+
+  .hero-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(2px 2px at 20% 28%, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(1px 1px at 32% 12%, rgba(255, 255, 255, 0.45), transparent),
+      radial-gradient(2px 2px at 74% 18%, rgba(255, 255, 255, 0.4), transparent),
+      radial-gradient(1px 1px at 86% 42%, rgba(255, 255, 255, 0.35), transparent);
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  .utility-row {
+    position: relative;
+    z-index: 2;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .utility-inner {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .utility-links,
+  .utility-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.82rem;
+  }
+
+  .utility-links a,
+  .utility-nav a,
+  .utility-login {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.88);
     font-size: 0.76rem;
   }
 
-  .topline-inner {
-    min-height: 34px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .topline-left {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-  }
-
-  .topline-right {
-    color: #d0d5dd;
-  }
-
-  .topline strong {
-    letter-spacing: 0.08em;
-    font-size: 0.74rem;
-    color: #ff6669;
-  }
-
-  .masthead {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: #fff;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .masthead-inner {
-    min-height: 74px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.25rem;
-  }
-
-  .masthead-actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-
-  .brand {
-    text-decoration: none;
-    color: inherit;
-    display: grid;
-    gap: 0.04rem;
-  }
-
-  .brand b {
-    font-size: 2rem;
-    color: var(--brand);
-    font-family: "Source Serif 4", serif;
-    letter-spacing: 0.01em;
-    line-height: 1;
-  }
-
-  .brand small {
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #667085;
-  }
-
-  nav {
-    display: flex;
-    gap: 0.35rem;
-    flex-wrap: wrap;
-  }
-
-  nav a {
-    text-decoration: none;
-    color: #475467;
-    font-size: 0.82rem;
-    font-weight: 600;
-    padding: 0.42rem 0.72rem;
-    border-radius: 6px;
-    transition: background 130ms ease, color 130ms ease;
-  }
-
-  nav a:hover {
-    background: #f3f4f6;
-    color: var(--ink);
-  }
-
-  nav a.active {
-    background: var(--brand);
+  .utility-links a:hover,
+  .utility-nav a:hover {
     color: #fff;
   }
 
-  .global-search {
+  .utility-weather {
+    font-size: 0.76rem;
+    color: rgba(235, 240, 255, 0.9);
+  }
+
+  .utility-nav {
     display: inline-flex;
-    align-items: center;
     gap: 0.35rem;
-    border: 1px solid #d7deea;
-    border-radius: 999px;
-    background: #fff;
-    padding: 0.2rem;
-    transition: box-shadow 160ms ease, border-color 160ms ease;
   }
 
-  .global-search:hover,
-  .global-search:focus-within {
-    border-color: #c7d1e0;
-    box-shadow: 0 0 0 3px rgba(240, 65, 66, 0.08);
+  .utility-nav a {
+    padding: 0.28rem 0.52rem;
+    border-radius: 999px;
+    font-weight: 600;
   }
 
-  .search-toggle {
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 999px;
-    background: #fff;
-    color: #475467;
+  .utility-nav a.active {
+    background: rgba(255, 77, 79, 0.2);
+    color: #fff;
+  }
+
+  .utility-login {
+    background: var(--brand);
+    color: #fff;
+    border-radius: 6px;
+    padding: 0.36rem 0.62rem;
+    font-weight: 700;
+  }
+
+  .hero-core {
+    position: relative;
+    z-index: 2;
+    padding: 2.3rem 0 2.7rem;
+  }
+
+  .hero-inner {
     display: grid;
-    place-items: center;
-    cursor: pointer;
+    justify-items: center;
+    gap: 1.1rem;
   }
 
-  .search-toggle svg {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
+  .hero-brand {
+    text-decoration: none;
+    color: #fff;
+    display: grid;
+    justify-items: center;
+    gap: 0.16rem;
+  }
+
+  .hero-brand strong {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    text-shadow: 0 8px 30px rgba(0, 0, 0, 0.32);
+  }
+
+  .hero-brand small {
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(226, 235, 255, 0.9);
+  }
+
+  .global-search {
+    width: min(680px, 100%);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(220, 229, 242, 0.65);
+    border-radius: 10px;
+    padding: 0.45rem 0.55rem;
+    box-shadow: 0 14px 40px rgba(5, 12, 33, 0.34);
   }
 
   .search-input {
-    width: 0;
-    opacity: 0;
     border: none;
-    padding: 0;
-    font: inherit;
-    color: var(--ink);
     background: transparent;
-    transition: width 220ms ease, opacity 160ms ease;
-  }
-
-  .global-search.open .search-input {
-    width: min(34vw, 18rem);
-    opacity: 1;
-    padding-right: 0.45rem;
+    font: inherit;
+    color: #1e293b;
+    font-size: 1.02rem;
+    padding: 0.26rem 0.18rem;
   }
 
   .search-input:focus {
     outline: none;
   }
 
+  .search-toggle {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--brand);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .search-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+
   .channel-row {
-    border-top: 1px solid var(--line);
+    background: #fff;
     border-bottom: 1px solid var(--line);
-    background: #fafafa;
+  }
+
+  .channel-inner {
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.9rem;
   }
 
   .channel-list {
-    min-height: 42px;
     display: flex;
     align-items: center;
-    gap: 1.1rem;
+    gap: 1.25rem;
     overflow-x: auto;
     white-space: nowrap;
-    font-size: 0.8rem;
-    color: #344054;
-    font-weight: 600;
   }
 
   .channel-link {
     position: relative;
-    z-index: 0;
-    display: inline-flex;
-    align-items: center;
     text-decoration: none;
-    color: inherit;
-    padding: 0.2rem 0.05rem;
-    transition: color 150ms ease;
-  }
-
-  .channel-link::before {
-    content: "";
-    position: absolute;
-    left: -0.48rem;
-    right: -0.48rem;
-    top: -0.14rem;
-    bottom: -0.14rem;
-    border-radius: 999px;
-    background: rgba(240, 65, 66, 0.08);
-    opacity: 0;
-    transform: scale(0.88);
-    transition: opacity 180ms ease, transform 180ms ease;
-    z-index: -1;
+    color: #4b5565;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0.24rem 0;
+    transition: color 140ms ease;
   }
 
   .channel-link::after {
@@ -434,46 +500,52 @@ const channelItems = [
     position: absolute;
     left: 0;
     right: 0;
-    bottom: -0.48rem;
-    height: 2px;
-    border-radius: 2px;
+    bottom: -0.78rem;
+    height: 3px;
+    border-radius: 3px;
     background: var(--brand);
     transform: scaleX(0);
     transform-origin: left center;
-    transition: transform 210ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .channel-link:hover {
-    color: var(--brand);
-  }
-
-  .channel-link:hover::before {
-    opacity: 0.55;
-    transform: scale(1);
-  }
-
+  .channel-link:hover,
   .channel-link.active {
     color: var(--brand);
-  }
-
-  .channel-link.active::before {
-    opacity: 1;
-    transform: scale(1);
   }
 
   .channel-link.active::after {
     transform: scaleX(1);
   }
 
+  .channel-cta {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.86rem;
+    color: #8a93a5;
+  }
+
+  .channel-cta a {
+    text-decoration: none;
+    background: var(--brand);
+    color: #fff;
+    border-radius: 6px;
+    padding: 0.34rem 0.62rem;
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+
   .page-shell {
-    padding-top: 0.95rem;
-    padding-bottom: 1.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1.8rem;
     animation: page-in 260ms ease both;
   }
 
   .panel {
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: 10px;
     background: var(--card);
     box-shadow: var(--shadow);
     padding: 0.95rem;
@@ -535,29 +607,48 @@ const channelItems = [
     }
   }
 
+  @media (max-width: 980px) {
+    .utility-inner,
+    .channel-inner {
+      flex-wrap: wrap;
+      padding-top: 0.45rem;
+      padding-bottom: 0.45rem;
+    }
+
+    .channel-cta {
+      width: 100%;
+      justify-content: flex-end;
+    }
+
+    .hero-core {
+      padding: 1.8rem 0 2.05rem;
+    }
+  }
+
   @media (max-width: 760px) {
-    .masthead-inner {
-      min-height: 64px;
-    }
-
-    .topline-inner {
-      min-height: 32px;
-    }
-
-    .topline-right {
+    .utility-links {
       display: none;
     }
 
-    .brand b {
-      font-size: 1.65rem;
+    .utility-right {
+      width: 100%;
+      justify-content: space-between;
     }
 
-    .masthead-actions {
-      gap: 0.35rem;
+    .utility-weather {
+      display: none;
     }
 
-    .global-search.open .search-input {
-      width: min(46vw, 12.5rem);
+    .global-search {
+      width: 100%;
+    }
+
+    .hero-brand strong {
+      font-size: 2.1rem;
+    }
+
+    .channel-cta {
+      display: none;
     }
   }
 </style>

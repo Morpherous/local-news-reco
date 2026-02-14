@@ -20,6 +20,8 @@ const trendingEl = document.getElementById("home-trending");
 const feedEl = document.getElementById("home-feed");
 const refreshBtn = document.getElementById("home-refresh");
 const cardTpl = document.getElementById("home-feed-card-template");
+const briefDateEl = document.getElementById("home-brief-date");
+const briefListEl = document.getElementById("home-brief-list");
 const channelLinks = [...document.querySelectorAll(".channel-link[data-topic]")];
 
 const activeTopic = readTopicFromUrl();
@@ -71,20 +73,20 @@ async function loadHome() {
     const searchQuery = searchText ? `&q=${encodeURIComponent(searchText)}` : "";
 
     const [recommendations, articles] = await Promise.all([
-      apiFetch(`/api/users/${encodeURIComponent(userId)}/recommendations?limit=16${topicQuery}${searchQuery}`),
-      apiFetch(`/api/articles?limit=24${topicQuery}${searchQuery}`)
+      apiFetch(`/api/users/${encodeURIComponent(userId)}/recommendations?limit=36${topicQuery}${searchQuery}`),
+      apiFetch(`/api/articles?limit=80${topicQuery}${searchQuery}`)
     ]);
 
     const serverRecs = Array.isArray(recommendations) ? recommendations : [];
     const serverArticles = Array.isArray(articles) ? articles : [];
 
-    // Backend already ranks by topic/query. This local filter is a safety net for bad upstream data.
+    // Backend already ranks by topic/query. This local filter is a safety net for sparse data.
     recommendedArticles = filterArticles(serverRecs, activeTopic, searchText);
     listedArticles = filterArticles(serverArticles, activeTopic, searchText);
 
     renderFromData();
-  } catch (err) {
-    renderFallback("Unable to refresh stories right now. Please try again.");
+  } catch (_err) {
+    renderFallback(searchText ? `No results for "${searchText}".` : "Unable to refresh stories right now.");
   }
 }
 
@@ -94,13 +96,46 @@ function renderFromData() {
   const headline = uniqueRecs[0] || uniqueList[0];
   const headlineId = createSafeText(headline?.id);
 
-  const trendSource = uniqueList.filter((item) => createSafeText(item.id) !== headlineId).slice(0, 6);
+  const trendSource = uniqueList.filter((item) => createSafeText(item.id) !== headlineId).slice(0, 12);
   const feedSource = uniqueById(uniqueRecs.concat(uniqueList))
-    .filter((item) => createSafeText(item.id) && createSafeText(item.id) !== headlineId);
+    .filter((item) => createSafeText(item.id) && createSafeText(item.id) !== headlineId)
+    .slice(0, 30);
 
+  renderBrief(uniqueList, headlineId);
   renderHeadline(headline);
   renderTrending(trendSource);
-  renderFeed(feedSource.slice(0, 10));
+  renderFeed(feedSource);
+}
+
+function renderBrief(items, excludeId) {
+  if (!briefDateEl || !briefListEl) {
+    return;
+  }
+
+  briefDateEl.textContent = new Date().toLocaleDateString("en-US", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+
+  briefListEl.replaceChildren();
+  const bulletItems = items
+    .filter((item) => createSafeText(item.id) !== excludeId)
+    .slice(0, 5);
+
+  if (!bulletItems.length) {
+    const li = document.createElement("li");
+    li.textContent = "No key updates at the moment.";
+    briefListEl.appendChild(li);
+    return;
+  }
+
+  bulletItems.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = createSafeText(item.title, "Untitled");
+    briefListEl.appendChild(li);
+  });
 }
 
 function renderHeadline(item) {
@@ -145,7 +180,7 @@ function renderTrending(items) {
   if (!items.length) {
     const empty = document.createElement("li");
     empty.className = "muted";
-    empty.textContent = "No trending stories yet.";
+    empty.textContent = "No ranking data yet.";
     trendingEl.appendChild(empty);
     return;
   }
@@ -184,7 +219,6 @@ function renderFeed(items) {
     const meta = card.querySelector(".meta");
     const title = card.querySelector(".title");
     const summary = card.querySelector(".summary");
-    const tags = card.querySelector(".tags");
     const readBtn = card.querySelector(".read-btn");
     const actionButtons = card.querySelectorAll("button[data-action]");
 
@@ -195,15 +229,6 @@ function renderFeed(items) {
     meta.textContent = `${createSafeText(item.source, "News")} | ${formatRelativeTime(item.publishedAt)}`;
     title.textContent = createSafeText(item.title, "Untitled");
     summary.textContent = createSafeText(item.summary, "No summary available.");
-
-    if (Array.isArray(item.tags)) {
-      item.tags.slice(0, 4).forEach((tagName) => {
-        const chip = document.createElement("span");
-        chip.className = "pill";
-        chip.textContent = tagName;
-        tags.appendChild(chip);
-      });
-    }
 
     [coverLink, readBtn].forEach((link) => {
       link.addEventListener("click", () => trackClick(articleId));
@@ -216,10 +241,7 @@ function renderFeed(items) {
       }
       btn.addEventListener("click", async () => {
         const type = btn.dataset.action;
-        if (!type) {
-          return;
-        }
-        if (btn.disabled) {
+        if (!type || btn.disabled) {
           return;
         }
         btn.disabled = true;
@@ -249,13 +271,20 @@ function renderFallback(text) {
 
 function renderLoading() {
   headlineEl.className = "headline-loading";
-  headlineEl.textContent = "Loading headline...";
+  headlineEl.textContent = "Loading top story...";
   trendingEl.replaceChildren();
   feedEl.replaceChildren();
 
+  if (briefListEl) {
+    briefListEl.replaceChildren();
+    const li = document.createElement("li");
+    li.textContent = "Compiling the latest key points...";
+    briefListEl.appendChild(li);
+  }
+
   const loading = document.createElement("p");
   loading.className = "muted";
-  loading.textContent = "Building your feed...";
+  loading.textContent = "Building your stream...";
   feedEl.appendChild(loading);
 }
 

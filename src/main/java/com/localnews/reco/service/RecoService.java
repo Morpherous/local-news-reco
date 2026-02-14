@@ -34,6 +34,35 @@ public class RecoService {
     private static final int MAX_ARTICLE_LIMIT = 120;
     private static final Set<String> ALLOWED_EVENT_TYPES = Set.of("impression", "click", "like", "share");
     private static final long HOUR_MS = 3_600_000L;
+    private static final List<String> LOCAL_PRIORITY_HINTS = List.of(
+            "irvine",
+            "orange county",
+            "anaheim",
+            "santa ana",
+            "costa mesa",
+            "newport beach",
+            "tustin",
+            "huntington beach",
+            "lake forest",
+            "mission viejo",
+            "laguna beach",
+            "fountain valley",
+            "garden grove",
+            "fullerton",
+            "yorba linda",
+            "westminster",
+            "san clemente",
+            "dana point",
+            "aliso viejo",
+            "rancho santa margarita",
+            "uc irvine",
+            "uci",
+            "irvine unified",
+            "octa",
+            "john wayne airport",
+            "great park",
+            "voice of oc"
+    );
     private static final Map<String, List<String>> TOPIC_HINTS = Map.of(
             "politics", List.of("politic", "government", "election", "senate", "congress", "policy", "white house"),
             "business", List.of("business", "market", "economy", "finance", "stock", "trade", "company"),
@@ -314,6 +343,7 @@ public class RecoService {
                             : freshnessScore(article.getPublishedAt());
                     double topicScore = topicRelevanceScore(article, topic);
                     double queryScore = queryRelevanceScore(article, queryTerms);
+                    double localScore = localRelevanceScore(article);
 
                     if (hasTopicFilter && topicScore <= 0D) {
                         return null;
@@ -322,7 +352,15 @@ public class RecoService {
                         return null;
                     }
 
-                    double finalScore = baseScore + topicScore * 4.2D + queryScore * 6.4D;
+                    double localWeight = hasQuery ? 1.9D : 3.1D;
+                    if ("top".equals(topic)) {
+                        localWeight += 0.9D;
+                    }
+
+                    double finalScore = baseScore + topicScore * 4.2D + queryScore * 6.4D + localScore * localWeight;
+                    if (localScore > 0D && !hasQuery) {
+                        finalScore += 1.2D;
+                    }
                     return new ScoredArticle(article, finalScore);
                 })
                 .filter(scored -> scored != null)
@@ -413,6 +451,37 @@ public class RecoService {
             }
         }
         return score;
+    }
+
+    private double localRelevanceScore(NewsArticle article) {
+        String title = normalize(article.getTitle()).toLowerCase(Locale.ROOT);
+        String summary = normalize(article.getSummary()).toLowerCase(Locale.ROOT);
+        String source = normalize(article.getSource()).toLowerCase(Locale.ROOT);
+        List<String> tags = article.getTags() == null ? List.of() : article.getTags().stream()
+                .map(tag -> normalize(tag).toLowerCase(Locale.ROOT))
+                .collect(Collectors.toList());
+
+        double score = 0D;
+        for (String hint : LOCAL_PRIORITY_HINTS) {
+            if (hint.isEmpty()) {
+                continue;
+            }
+            if (title.contains(hint)) {
+                score += 1.4D;
+            }
+            if (summary.contains(hint)) {
+                score += 0.9D;
+            }
+            if (source.contains(hint)) {
+                score += 0.7D;
+            }
+            if (tags.stream().anyMatch(tag -> tag.contains(hint))) {
+                score += 1.2D;
+            }
+        }
+
+        // Keep local boosting noticeable but bounded.
+        return Math.min(score, 4.5D);
     }
 
     private double freshnessScore(Long publishedAt) {

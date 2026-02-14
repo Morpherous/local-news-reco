@@ -2,10 +2,58 @@ server:
   port: ${PORT:8080}
 
 news:
-  refresh-minutes: ${NEWS_REFRESH_MINUTES:20}
-  max-articles: ${NEWS_MAX_ARTICLES:120}
-  request-timeout-seconds: ${NEWS_REQUEST_TIMEOUT_SECONDS:12}
+  refresh-minutes: ${NEWS_REFRESH_MINUTES:8}
+  max-articles: ${NEWS_MAX_ARTICLES:480}
+  request-timeout-seconds: ${NEWS_REQUEST_TIMEOUT_SECONDS:15}
   feeds:
+    # Broad national feeds
     - https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en
     - https://rss.nytimes.com/services/xml/rss/nyt/US.xml
+    - https://rss.nytimes.com/services/xml/rss/nyt/World.xml
+    - https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
+    - https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
     - https://feeds.npr.org/1001/rss.xml
+
+    # Topic-focused Google News feeds
+    - https://news.google.com/rss/search?q=US%20politics&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=US%20business&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=US%20technology&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=US%20sports&hl=en-US&gl=US&ceid=US:en
+
+    # Orange County / Irvine nearby local feeds
+    - https://news.google.com/rss/search?q=Irvine%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Orange%20County%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Anaheim%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Santa%20Ana%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Costa%20Mesa%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Newport%20Beach%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Tustin%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Huntington%20Beach%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Lake%20Forest%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Mission%20Viejo%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Laguna%20Beach%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Fountain%20Valley%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Garden%20Grove%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Fullerton%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Orange%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Yorba%20Linda%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Westminster%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=San%20Clemente%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Dana%20Point%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Aliso%20Viejo%20CA&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Rancho%20Santa%20Margarita%20CA&hl=en-US&gl=US&ceid=US:en
+
+    # Irvine / OC local institutions and infrastructure
+    - https://news.google.com/rss/search?q=UC%20Irvine&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Irvine%20Unified%20School%20District&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=UCI%20Health&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Hoag%20Hospital%20Newport%20Beach&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=John%20Wayne%20Airport&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=OCTA%20Orange%20County&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Great%20Park%20Irvine&hl=en-US&gl=US&ceid=US:en
+    - https://news.google.com/rss/search?q=Irvine%20Spectrum&hl=en-US&gl=US&ceid=US:en
+
+    # City newsroom/community feeds (may vary over time)
+    - https://cityofirvine.org/news/all/feed
+    - https://www.anaheim.net/RSSFeed.aspx?CID=City-News-Current-58&ModID=1
+    - https://www.voiceofoc.org/feed/
