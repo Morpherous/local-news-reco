@@ -1,0 +1,195 @@
+---
+import NewsLayout from "../layouts/NewsLayout.astro";
+---
+
+<NewsLayout
+  page="me"
+  title="My Feed"
+  lead="See your reading footprint and how recommendations adapt in real time."
+>
+  <div class="insights-page">
+    <section class="panel">
+      <div class="head">
+        <h2>Your Weekly Snapshot</h2>
+        <button id="me-refresh" type="button">Refresh</button>
+      </div>
+      <p id="me-message" class="message" hidden></p>
+      <div id="me-kpis" class="kpis"></div>
+    </section>
+
+    <section class="panel split">
+      <article>
+        <h3>Recent Activity</h3>
+        <div id="me-timeline" class="timeline"></div>
+      </article>
+      <article>
+        <h3>More For You</h3>
+        <div id="me-recommendations" class="recommend"></div>
+      </article>
+    </section>
+  </div>
+
+  <template id="me-reco-template">
+    <a class="reco-item">
+      <img class="cover" alt="" loading="lazy" />
+      <div>
+        <p class="meta"></p>
+        <strong class="title"></strong>
+      </div>
+    </a>
+  </template>
+
+  <script src="../scripts/insights-page.js"></script>
+</NewsLayout>
+
+<style is:global>
+  .insights-page .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .insights-page .head h2 {
+    margin: 0;
+    font-family: "Source Serif 4", serif;
+    font-size: 1.28rem;
+  }
+
+  .insights-page .head button {
+    border: 1px solid #d6dfeb;
+    border-radius: 999px;
+    background: #fff;
+    padding: 0.34rem 0.62rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .insights-page .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  .insights-page .kpi {
+    border: 1px solid #dde5f0;
+    border-radius: 12px;
+    background: var(--card-2);
+    padding: 0.62rem;
+  }
+
+  .insights-page .kpi p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.74rem;
+  }
+
+  .insights-page .kpi strong {
+    margin-top: 0.22rem;
+    display: block;
+    font-family: "Source Serif 4", serif;
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+
+  .insights-page .split {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 0.85rem;
+  }
+
+  .insights-page .split h3 {
+    margin: 0 0 0.6rem;
+    font-family: "Source Serif 4", serif;
+    font-size: 1.1rem;
+  }
+
+  .insights-page .timeline {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .insights-page .event-item {
+    border: 1px solid #dde6f0;
+    border-radius: 11px;
+    background: var(--card-2);
+    padding: 0.56rem;
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .insights-page .event-item .time {
+    font-size: 0.74rem;
+    color: var(--muted);
+  }
+
+  .insights-page .event-item strong {
+    font-family: "Source Serif 4", serif;
+    font-size: 1.02rem;
+    line-height: 1.24;
+  }
+
+  .insights-page .event-item span {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .insights-page .recommend {
+    display: grid;
+    gap: 0.54rem;
+  }
+
+  .insights-page .reco-item {
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #dde5f0;
+    background: var(--card-2);
+    border-radius: 12px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+  }
+
+  .insights-page .reco-item .cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    min-height: 5.4rem;
+    background: linear-gradient(135deg, #c6dbef, #f8ccb8);
+  }
+
+  .insights-page .reco-item div {
+    padding: 0.5rem 0.56rem;
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .insights-page .reco-item .meta {
+    margin: 0;
+    font-size: 0.73rem;
+    color: var(--muted);
+  }
+
+  .insights-page .reco-item .title {
+    font-family: "Source Serif 4", serif;
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  @media (max-width: 980px) {
+    .insights-page .kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .insights-page .split {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .insights-page .kpis {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

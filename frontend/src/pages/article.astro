@@ -1,0 +1,239 @@
+---
+import NewsLayout from "../layouts/NewsLayout.astro";
+---
+
+<NewsLayout
+  page="home"
+  title="Story Detail"
+  lead="Focus on one story, then continue to the next article tailored for you."
+>
+  <div class="article-page">
+    <section class="panel">
+      <p id="article-message" class="message" hidden></p>
+      <div id="article-loading" class="loading">Loading story...</div>
+
+      <article id="article-detail" class="detail" hidden>
+        <div class="hero-image-wrap">
+          <img id="detail-image" alt="" />
+        </div>
+        <p id="detail-meta" class="meta"></p>
+        <h2 id="detail-title"></h2>
+        <p id="detail-summary" class="summary"></p>
+        <div id="detail-tags" class="tag-list"></div>
+        <div class="actions">
+          <a id="detail-source-link" class="primary-btn" target="_blank" rel="noopener noreferrer">Open Source</a>
+          <button class="icon-action like-btn" data-action="like" type="button" aria-label="Like" title="Like">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 21s-6.7-4.3-9.3-8.1C.9 10.2 1.8 6.6 4.8 5.1c2-1 4.2-.5 5.6 1.1l1.6 1.9 1.6-1.9c1.4-1.6 3.6-2.1 5.6-1.1 3 1.5 3.9 5.1 2.1 7.8C18.7 16.7 12 21 12 21z"
+              ></path>
+            </svg>
+          </button>
+          <button class="icon-action share-btn" data-action="share" type="button" aria-label="Share" title="Share">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M14 3h7v7h-2V6.4l-8.3 8.3-1.4-1.4L17.6 5H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h3>Keep Reading</h3>
+      <div id="detail-recommendations" class="reco-grid"></div>
+    </section>
+  </div>
+
+  <template id="detail-reco-template">
+    <a class="reco-card">
+      <img class="cover" alt="" loading="lazy" />
+      <div>
+        <p class="meta"></p>
+        <strong class="title"></strong>
+      </div>
+    </a>
+  </template>
+
+  <script src="../scripts/article-page.js"></script>
+</NewsLayout>
+
+<style is:global>
+  .article-page .loading {
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+    padding: 1rem;
+    color: var(--muted);
+  }
+
+  .article-page .detail {
+    display: grid;
+    gap: 0.72rem;
+  }
+
+  .article-page .hero-image-wrap {
+    border-radius: 14px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #c6dbef, #f8ccb8);
+    min-height: 14rem;
+  }
+
+  .article-page .hero-image-wrap img {
+    width: 100%;
+    height: clamp(14rem, 38vw, 26rem);
+    object-fit: cover;
+    display: block;
+  }
+
+  .article-page .meta {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .article-page .detail h2 {
+    margin: 0;
+    font-family: "Source Serif 4", serif;
+    font-size: clamp(1.55rem, 3.2vw, 2.6rem);
+    line-height: 1.08;
+    max-width: 24ch;
+  }
+
+  .article-page .summary {
+    margin: 0;
+    color: #334e68;
+    line-height: 1.65;
+    font-size: 1.02rem;
+    max-width: 68ch;
+  }
+
+  .article-page .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.15rem;
+  }
+
+  .article-page .actions .primary-btn,
+  .article-page .actions button {
+    border: 1px solid #d7e1ee;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 0.34rem 0.66rem;
+    font-size: 0.78rem;
+    cursor: pointer;
+  }
+
+  .article-page .actions .primary-btn {
+    border-color: transparent;
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .article-page .actions .icon-action {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: #667085;
+    transition: transform 120ms ease, color 130ms ease, background 130ms ease, border-color 130ms ease;
+  }
+
+  .article-page .actions .icon-action svg {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
+  }
+
+  .article-page .actions .icon-action:hover {
+    transform: translateY(-1px);
+  }
+
+  .article-page .actions .like-btn.is-active {
+    border-color: #ffc8cc;
+    background: #fff0f1;
+    color: #d9363e;
+  }
+
+  .article-page .actions .share-btn.is-active {
+    border-color: #cbe0ff;
+    background: #edf4ff;
+    color: #175cd3;
+  }
+
+  .article-page .actions .icon-action.is-failed {
+    animation: pulse-fail 300ms ease;
+  }
+
+  @keyframes pulse-fail {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.9);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .article-page .reco-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.55rem;
+  }
+
+  .article-page .reco-card {
+    border: 1px solid #dde5f0;
+    border-radius: 12px;
+    background: var(--card-2);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: grid;
+  }
+
+  .article-page .reco-card .cover {
+    width: 100%;
+    height: 8.6rem;
+    object-fit: cover;
+    display: block;
+    background: linear-gradient(135deg, #c6dbef, #f8ccb8);
+  }
+
+  .article-page .reco-card div {
+    padding: 0.58rem;
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .article-page .reco-card .meta {
+    margin: 0;
+    font-size: 0.74rem;
+  }
+
+  .article-page .reco-card .title {
+    font-family: "Source Serif 4", serif;
+    font-size: 1rem;
+    line-height: 1.24;
+  }
+
+  @media (max-width: 980px) {
+    .article-page .reco-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 680px) {
+    .article-page .reco-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
