@@ -119,6 +119,29 @@ const utilityLinks = [
     <script is:inline>
       (() => {
         const links = [...document.querySelectorAll(".channel-link[data-topic]")];
+        const isSearchPath = () => window.location.pathname === "/search" || window.location.pathname === "/search/";
+
+        const updateChannelHrefs = () => {
+          if (!links.length) {
+            return;
+          }
+          const params = new URLSearchParams(window.location.search);
+          const currentQuery = (params.get("q") || "").trim();
+          const base = isSearchPath() ? "/search" : "/";
+          links.forEach((link) => {
+            const topic = (link.dataset.topic || "top").toLowerCase();
+            const nextParams = new URLSearchParams();
+            if (topic && topic !== "top") {
+              nextParams.set("topic", topic);
+            }
+            if (isSearchPath() && currentQuery) {
+              nextParams.set("q", currentQuery);
+            }
+            const query = nextParams.toString();
+            link.href = query ? `${base}?${query}` : base;
+          });
+        };
+
         const highlightChannel = () => {
           if (!links.length) {
             return;
@@ -135,8 +158,12 @@ const utilityLinks = [
           }
         };
 
+        updateChannelHrefs();
         highlightChannel();
-        window.addEventListener("popstate", highlightChannel);
+        window.addEventListener("popstate", () => {
+          updateChannelHrefs();
+          highlightChannel();
+        });
 
         const weatherEl = document.querySelector("[data-weather]");
         if (weatherEl) {
@@ -164,15 +191,19 @@ const utilityLinks = [
           event.preventDefault();
           const query = input.value.trim();
           const currentParams = new URLSearchParams(window.location.search);
-          const nextParams = new URLSearchParams();
           const topic = (currentParams.get("topic") || "").trim();
-          if (topic) {
+          const nextParams = new URLSearchParams();
+          if (topic && topic.toLowerCase() !== "top") {
             nextParams.set("topic", topic);
           }
+
+          let nextBase = "/";
           if (query) {
+            nextBase = "/search";
             nextParams.set("q", query);
           }
-          const next = `/` + (nextParams.toString() ? `?${nextParams.toString()}` : "");
+
+          const next = nextBase + (nextParams.toString() ? `?${nextParams.toString()}` : "");
           const current = `${window.location.pathname}${window.location.search}`;
           if (current === next) {
             window.location.reload();
